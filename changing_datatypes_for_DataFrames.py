@@ -57,6 +57,84 @@ dy.printSchema()
 # |-- age: integer (nullable = true)
 # |-- name: string (nullable = true)
 
+df.select('age')
+#DataFrame[age: bigint]
+
+type(df['age'])
+#pyspark.sql.column.Column
+
+df.select('age').show()
+# +----+
+# | age|
+# +----+
+# |null|
+# |  30|
+# |  19|
+# +----+
+
+type(df.select('age'))
+# pyspark.sql.dataframe.DataFrame
+
+df.head(2)
+# [Row(age=None, name='Michael'), Row(age=30, name='Andy')]
+
+df.head(2)[0]
+# Row(age=None, name='Michael')
+
+type(df.head(2)[0])
+# pyspark.sql.types.Row
+
+df.select(['age','name'])
+# DataFrame[age: bigint, name: string]
+
+df.select(['age','name']).show()
+# +----+-------+
+# | age|   name|
+# +----+-------+
+# |null|Michael|
+# |  30|   Andy|
+# |  19| Justin|
+# +----+-------+
+
+df.withColumn('newAge',df['age'])
+# DataFrame[age: bigint, name: string, newAge: bigint]
+
+df.withColumn('newAge',df['age']).show()
+# +----+-------+------+
+# | age|   name|newAge|
+# +----+-------+------+
+# |null|Michael|  null|
+# |  30|   Andy|    30|
+# |  19| Justin|    19|
+# +----+-------+------+
+
+df.withColumnRenamed('age','my_new_age').show()
+# +----------+-------+
+# |my_new_age|   name|
+# +----------+-------+
+# |      null|Michael|
+# |        30|   Andy|
+# |        19| Justin|
+# +----------+-------+
+
+df.createOrReplaceTempView('people')
+results = spark.sql('SELECT * FROM people')
+results.show()
+# +----+-------+
+# | age|   name|
+# +----+-------+
+# |null|Michael|
+# |  30|   Andy|
+# |  19| Justin|
+# +----+-------+
+new_results = spark.sql('SELECT * FROM people WHERE age = 30')
+new_results.show()
+# +---+----+
+# |age|name|
+# +---+----+
+# | 30|Andy|
+# +---+----+
+
 # contents of JSON FILE people.json
 # {"name":"Michael"}
 # {"name":"Andy", "age":30}
